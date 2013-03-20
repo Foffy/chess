@@ -12,6 +12,7 @@ var height = c.height;
 var xDisp = 0; // if screen is too wide
 var yDisp = 0; // if screen is too high
 var mousePos = [0,0];
+var mouseSquare = [0,0];
 var mouseClicked = null;
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas,false);
@@ -64,6 +65,9 @@ function getMousePosition(evt){
 	var mouseY = evt.clientY - rect.left - root.scrollLeft-c.offsetTop;
 	mousePos[0] = mouseX;
 	mousePos[1] = mouseY;
+
+	mouseSquare[0] = Math.floor(xToPct(mouseX)/10)-1;
+	mouseSquare[1] = Math.floor(yToPct(mouseY)/10)-1;
 }
 
 function getMouseClick(x, y, width, height){
@@ -301,6 +305,7 @@ var imgKnightBlack = addImage("knight_black.png");
 var imgPawnWhite = addImage("pawn_white.png");
 var imgPawnBlack = addImage("pawn_black.png");
 
+var curPiece = null;
 var curPlayer = null;
 var players = [];
 
@@ -323,6 +328,7 @@ function Piece(type, position, colour){
 	this.pos = position;
 	this.image = getImageByType(this.type, colour);
 	this.colour = colour;
+	this.hasMoved = false;
 	
 	// get the coordinates in pct for the players center
 	this.getCoords = function(){
@@ -342,6 +348,10 @@ function Piece(type, position, colour){
 	// draw the piece at a given set of coordinates (in pct)
 	this.drawXY = function(x, y){
 		drawImageByPosition(this.image, x, y);
+	}
+
+	this.move = function(position){
+		this.pos = position;
 	}
 }
 
@@ -419,8 +429,7 @@ function createPieces(){
 // all the possible states in the game
 State = {
 	CHOOSE : "1: To Choose",
-	MOVE : "2: To Move",
-	PLACE : "3: To Place"
+	MOVE : "2: To Move"
 }
 
 // the main gameloop function
@@ -469,9 +478,10 @@ function drawState(){
 			break;
 		}
 		case State.MOVE:{
-			break;
-		}
-		case State.PLACE:{
+			if(xToPct(mousePos[0]) >= boardOffsetX && xToPct(mousePos[0]) <= boardOffsetX+8*squareSize 
+				&& yToPct(mousePos[1]) >= boardOffsetY && yToPct(mousePos[1]) <= boardOffsetY+8*squareSize){
+					drawImageByPosition(curPiece.image, mouseSquare[0], mouseSquare[1]);
+			}
 			break;
 		}
 	}
@@ -483,17 +493,50 @@ function takeInput(){
 	switch(curState){
 		case State.CHOOSE:{
 			var pos = getClickPosition();
-			if(board[pos[0]][pos[1]].length != 0){
+			// check if the mouse click is on the board and if it is on an empty field
+			if(xToPct(mousePos[0]) >= boardOffsetX && xToPct(mousePos[0]) <= boardOffsetX+8*squareSize 
+				&& yToPct(mousePos[1]) >= boardOffsetY && yToPct(mousePos[1]) <= boardOffsetY+8*squareSize && board[pos[0]][pos[1]].length != 0){
+
 				debugging = "Clicked on "+pos+" - occupied by "+board[pos[0]][pos[1]].colour+" "+board[pos[0]][pos[1]].type;
+
+				// pick up piece if it is of same colour as the player
+				if(curPlayer.colour == board[pos[0]][pos[1]].colour){
+					curPiece = board[pos[0]][pos[1]];
+					board[pos[0]][pos[1]] = [];
+					curState = State.MOVE;
+				}
+
+			// if the click is outside the board or on an empty field do nothing
 			}else{
 				debugging = "Clicked on "+pos+" - occupied by nothing"
+				curPiece = null;
 			}
 			break;
 		}
 		case State.MOVE:{
-			break;
-		}
-		case State.PLACE:{
+			var pos = getClickPosition();
+
+			if(pos[0] == curPiece.pos[0] && pos[1] == curPiece.pos[1]){
+				curState = State.CHOOSE;
+				board[pos[0]][pos[1]] = curPiece;
+				curPiece = null;
+				break;
+			}
+			// check if move is legal
+			if(checkLegalMove(curPiece, pos, curPiece.colour)){
+
+				// move the piece and update it's position on the board
+				curPiece.move(pos);
+				board[pos[0]][pos[1]] = curPiece;
+				curPiece.hasMoved = true;
+
+				if(curPlayer.colour == "white"){
+					curPlayer = players[1];
+				}else{
+					curPlayer = players[0];
+				}
+				curState = State.CHOOSE;
+			}
 			break;
 		}
 	}
