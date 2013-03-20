@@ -4,6 +4,30 @@
 		"selected_items":
 		[
 			[
+				"get",
+				"getClickPosition"
+			],
+			[
+				"mouseCli",
+				"mouseClicked"
+			],
+			[
+				"mouseClic",
+				"getMouseClick"
+			],
+			[
+				"getMou",
+				"getMouseClick"
+			],
+			[
+				"getCo",
+				"getCoords"
+			],
+			[
+				"le",
+				"length"
+			],
+			[
 				"boardOff",
 				"boardOffsetY"
 			],
@@ -71,6 +95,30 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "/home/blaedel/dev/chess/game.js",
+			"settings":
+			{
+				"buffer_size": 13632,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/blaedel/dev/piratspillet/assets/script/game.js",
+			"settings":
+			{
+				"buffer_size": 48163,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/blaedel/dev/chess/beta.html",
+			"settings":
+			{
+				"buffer_size": 507,
+				"line_ending": "Unix"
+			}
+		}
 	],
 	"build_system": "",
 	"command_palette":
@@ -96,6 +144,7 @@
 	},
 	"file_history":
 	[
+		"/home/blaedel/dev/piratspillet/assets/script/game.js",
 		"/home/blaedel/dev/chess/beta.html",
 		"/home/blaedel/dev/chess/game.js",
 		"/home/blaedel/dev/chess/sublime_project.sublime-workspace",
@@ -103,7 +152,6 @@
 		"/home/blaedel/dev/piratspillet/docs/outputqueries.sql",
 		"/home/blaedel/dev/piratspillet/application/views/teststuff.php",
 		"/home/blaedel/dev/piratspillet/application/controllers/updatedb.php",
-		"/home/blaedel/dev/piratspillet/assets/script/game.js",
 		"/home/blaedel/dev/piratspillet/application/views/includes/header_tabs.php",
 		"/home/blaedel/dev/piratspillet/assets/style/tabs-panes.css",
 		"/home/blaedel/dev/piratspillet/assets/style/tabs.css",
@@ -150,6 +198,11 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"player",
+			"players",
+			"var players",
+			"players",
+			"gameloop",
 			"drawRect",
 			"colorString",
 			"CHOOS",
@@ -197,8 +250,91 @@
 	"groups":
 	[
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "/home/blaedel/dev/chess/game.js",
+					"settings":
+					{
+						"buffer_size": 13632,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								13410,
+								13410
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 8194.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/home/blaedel/dev/piratspillet/assets/script/game.js",
+					"settings":
+					{
+						"buffer_size": 48163,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								47288,
+								47288
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 27727.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/home/blaedel/dev/chess/beta.html",
+					"settings":
+					{
+						"buffer_size": 507,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								55,
+								55
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
 			]
 		}
 	],

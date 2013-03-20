@@ -1,5 +1,5 @@
 var local = true;
-var debug = false;
+var debug = true;
 
 // global variables
 var c = document.getElementById('c');
@@ -76,6 +76,16 @@ function getMouseClick(x, y, width, height){
 		}
 	}
 	return false;
+}
+
+function getClickPosition(){
+	var pos = [];
+	mouseClicked = [];
+	mouseClicked[0] = xToPct(mousePos[0]);
+	mouseClicked[1] = yToPct(mousePos[1]);
+	pos[0] = Math.floor(mouseClicked[0]/10)-1;
+	pos[1] = Math.floor(mouseClicked[1]/10)-1;
+	return pos;
 }
 
 // converts a percentage of the width to an exact x value
@@ -260,16 +270,16 @@ function addImage(fileName){
 // THE ACTUAL GAME
 
 // constants and stuff
-var board = [[[],[],[],[],[],[],[],[]],
-						[[],[],[],[],[],[],[],[]],
-						[[],[],[],[],[],[],[],[]],
-						[[],[],[],[],[],[],[],[]],
-						[[],[],[],[],[],[],[],[]],
-						[[],[],[],[],[],[],[],[]],
-						[[],[],[],[],[],[],[],[]],
-						[[],[],[],[],[],[],[],[]]];
-
-var activePieces
+var board = [
+			[[],[],[],[],[],[],[],[]],
+			[[],[],[],[],[],[],[],[]],
+			[[],[],[],[],[],[],[],[]],
+			[[],[],[],[],[],[],[],[]],
+			[[],[],[],[],[],[],[],[]],
+			[[],[],[],[],[],[],[],[]],
+			[[],[],[],[],[],[],[],[]],
+			[[],[],[],[],[],[],[],[]],
+			]
 
 var squareSize = 10; // in percentages
 var boardOffsetX = 10; // in percentages
@@ -291,20 +301,33 @@ var imgKnightBlack = addImage("knight_black.png");
 var imgPawnWhite = addImage("pawn_white.png");
 var imgPawnBlack = addImage("pawn_black.png");
 
+var curPlayer = null;
+var players = [];
+
 // classes
 
+// The player class
+function Player(colour){
+	this.colour = colour;
+	this.pieces = [];
+
+	// add a piece to the player
+	this.addPiece = function(piece){
+		this.pieces.push(piece);
+	};
+}
 // The piece class
 // Contains a piece object of a given type and with a given position [x,y].
 function Piece(type, position, colour){
 	this.type = type;
 	this.pos = position;
-	this.image = imageByType(this.type, colour);
+	this.image = getImageByType(this.type, colour);
 	this.colour = colour;
 	
 	// get the coordinates in pct for the players center
 	this.getCoords = function(){
 		var x,y;
-		var coords = getCoordsByPosition(this.pos);
+		var coords = getCoordsByPosition(this.pos[0],this.pos[1]);
 		return{
 			 x: coords[0],
 			 y: coords[1]
@@ -325,14 +348,14 @@ function Piece(type, position, colour){
 // draw an image at a given position on the board in [x,y]
 function drawImageByPosition(image, x, y){
 	var pos = getCoordsByPosition(x,y);
-	drawImage(image, pos[0], pos[1]);
+	drawImage(image, pos[0]+1.5, pos[1], 7);
 }
 
 // return the coordinates of a given position on the board
 function getCoordsByPosition(x,y){
 	var pos = [];
-	pos[0] = x*squareSize+boardOffsetX;
-	pos[1] = y*squareSize+boardOffsetY;
+	pos.push(x*squareSize+boardOffsetX);
+	pos.push(y*squareSize+boardOffsetY);
 	return pos;
 }
 
@@ -345,6 +368,51 @@ function getImageByType(type, colour){
 		case "bishop": return (colour == "white") ? imgBishopWhite : imgBishopBlack;
 		case "knight": return (colour == "white") ? imgKnightWhite : imgKnightBlack;
 		case "pawn": return (colour == "white") ? imgPawnWhite : imgPawnBlack;
+	}
+}
+
+function createPlayers(){
+	players.push(new Player("white"));
+	players.push(new Player("black"));
+}
+
+function createPieces(){
+	// black pieces first
+	for(var i = 0; i < 8; i++){
+		board[i][1] = new Piece("pawn", [i,1], "black");
+	}
+
+	board[0][0] = new Piece("rook", [0,0], "black");
+	board[7][0] = new Piece("rook", [7,0], "black");
+	board[1][0] = new Piece("knight", [1,0], "black");
+	board[6][0] = new Piece("knight", [6,0], "black");
+	board[2][0] = new Piece("bishop", [2,0], "black");
+	board[5][0] = new Piece("bishop", [5,0], "black");
+	board[3][0] = new Piece("queen", [3,0], "black");
+	board[4][0] = new Piece("king", [4,0], "black");
+
+	// ...then white pieces
+	for(var i = 0; i < 8; i++){
+		board[i][6] = new Piece("pawn", [i,6], "white");
+	}
+	
+	board[0][7] = new Piece("rook", [0,7], "white");
+	board[7][7] = new Piece("rook", [7,7], "white");
+	board[1][7] = new Piece("knight", [1,7], "white");
+	board[6][7] = new Piece("knight", [6,7], "white");
+	board[2][7] = new Piece("bishop", [2,7], "white");
+	board[5][7] = new Piece("bishop", [5,7], "white");
+	board[4][7] = new Piece("queen", [4,7], "white");
+	board[3][7] = new Piece("king", [3,7], "white");
+
+	for(var i = 0; i < 8; i++){
+		for(var j = 0; j < 8; j++){
+			if(board[i][j].colour == "black"){
+				players[0].addPiece[board[i][j]];
+			}else{
+				players[1].addPiece[board[i][j]];
+			}
+		}
 	}
 }
 
@@ -368,12 +436,23 @@ function GameLoop(){
 // draws the basic parts of the board that shall be visible
 // in all states
 function drawboard(){
+
+	// Draw the squares for the board itself
 	for(var i = 0; i < 8; i++){
 		for(var j = 0; j < 8; j++){
 			if((i+j) % 2 == 0){
-				drawRect(i*squareSize+boardOffsetX,j*squareSize+boardOffsetY, squareSize, squareSize,[247,181,124]);
+				drawRect(i*squareSize+boardOffsetX,j*squareSize+boardOffsetY, squareSize, squareSize,[255,255,255]);
 			}else{
 				drawRect(i*squareSize+boardOffsetX,j*squareSize+boardOffsetY, squareSize, squareSize,[150,90,0]);
+			}
+		}
+	}
+
+	// Draw all the 
+	for(var i = 0; i < 8; i++){
+		for(var j = 0; j < 8; j++){
+			if(board[i][j].length != 0){
+				board[i][j].draw();
 			}
 		}
 	}
@@ -382,7 +461,7 @@ function drawboard(){
 // draws extra gui depending on the current game state
 var debugging = "";
 function drawState(){
-	if(debug) drawText("State: "+curState+" - Timeout: "+newTimeout,1,1,0,2.5);
+	if(debug) drawText("State: "+curState,1,1,0,2.5);
 	if(debug) drawText(""+debugging,1,4,0,2.5,"left");
 
 	switch(curState){
@@ -403,6 +482,12 @@ function takeInput(){
 	
 	switch(curState){
 		case State.CHOOSE:{
+			var pos = getClickPosition();
+			if(board[pos[0]][pos[1]].length != 0){
+				debugging = "Clicked on "+pos+" - occupied by "+board[pos[0]][pos[1]].colour+" "+board[pos[0]][pos[1]].type;
+			}else{
+				debugging = "Clicked on "+pos+" - occupied by nothing"
+			}
 			break;
 		}
 		case State.MOVE:{
@@ -417,9 +502,13 @@ function takeInput(){
 }
 
 // INITIALISATION
+createPlayers();
+createPieces();
+curPlayer = players[0];
 GameLoop();
 
 // ... and we're on!
+
 curState = State.CHOOSE;
 c.addEventListener('mousemove',getMousePosition,false);
 c.addEventListener('click',getMouseClick,false);
